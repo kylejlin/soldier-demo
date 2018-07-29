@@ -125,7 +125,7 @@ const update = (dt) => {
     camera.position.copy(soldier.scene.position.clone().add(new Vector3(25, 25, 25)));
     camera.lookAt(soldier.scene.position);
 
-    if (keys.SPACE) {
+    if (keys.UP) {
       if (soldier.state === CROUCHED) {
         soldier.state = GETTING_UP;
         soldier.aimAction.weight = 1;
