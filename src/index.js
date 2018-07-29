@@ -70,17 +70,22 @@ new GLTFLoader().load('./models/soldier.glb', (gltf) => {
   const mixer = new AnimationMixer(soldierScene);
   const runClip = AnimationClip.findByName(animations, 'Run');
   const aimClip = AnimationClip.findByName(animations, 'Aim');
+  const riseClip = AnimationClip.findByName(animations, 'Rise');
   const runAction = mixer.clipAction(runClip);
   const aimAction = mixer.clipAction(aimClip);
+  const riseAction = mixer.clipAction(riseClip);
   runAction.weight = 0;
   aimAction.loop = LoopOnce;
   aimAction.clampWhenFinished = true;
+  riseAction.loop = LoopOnce;
+  riseAction.clampWhenFinished = true;
   soldier = {
     scene: soldierScene,
     animations,
     mixer,
     runAction,
     aimAction,
+    riseAction,
     state: CROUCHED,
   };
   console.log(soldier);
@@ -128,13 +133,14 @@ const update = (dt) => {
     if (keys.UP) {
       if (soldier.state === CROUCHED) {
         soldier.state = GETTING_UP;
-        soldier.aimAction.weight = 1;
+        soldier.riseAction.weight = 1;
+        soldier.aimAction.weight = 0;
         soldier.runAction.weight = 0;
-        soldier.aimAction.timeScale = -1;
-        soldier.aimAction.paused = false;
+        soldier.riseAction.reset().play();
       } else if (soldier.state === GETTING_UP) {
-        if (soldier.aimAction.time === 0) {
+        if (soldier.riseAction.paused) {
           soldier.runAction.weight = 1;
+          soldier.riseAction.weight = 0;
           soldier.aimAction.weight = 0;
           soldier.state = RUNNING;
         }
@@ -154,9 +160,9 @@ const update = (dt) => {
       if (soldier.state === RUNNING || soldier.state === GETTING_UP) {
         soldier.state = CROUCHING_DOWN;
         soldier.aimAction.weight = 1;
-        soldier.aimAction.timeScale = 1;
+        soldier.riseAction.weight = 0;
         soldier.runAction.weight = 0;
-        soldier.aimAction.paused = false;
+        soldier.aimAction.reset().play();
       } else if (soldier.state === CROUCHING_DOWN && soldier.aimAction.paused) {
         soldier.state = CROUCHED;
       }
