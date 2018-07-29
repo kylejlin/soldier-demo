@@ -88,7 +88,6 @@ new GLTFLoader().load('./models/soldier.glb', (gltf) => {
     riseAction,
     state: CROUCHED,
   };
-  console.log(soldier);
   scene.add(soldier.scene);
 });
 
