@@ -74,6 +74,7 @@ new GLTFLoader().load('./models/soldier.glb', (gltf) => {
   const runAction = mixer.clipAction(runClip);
   const aimAction = mixer.clipAction(aimClip);
   const riseAction = mixer.clipAction(riseClip);
+  runAction.timeScale = 0.85;
   runAction.weight = 0;
   aimAction.loop = LoopOnce;
   aimAction.clampWhenFinished = true;
