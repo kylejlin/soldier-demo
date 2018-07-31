@@ -65,21 +65,26 @@ const CROUCHED = 0;
 const GETTING_UP = 1;
 const RUNNING = 2;
 const CROUCHING_DOWN = 3;
+const FIRING = 4;
 new GLTFLoader().load('./models/soldier.glb', (gltf) => {
   const { scene: soldierScene, animations } = gltf;
   const mixer = new AnimationMixer(soldierScene);
   const runClip = AnimationClip.findByName(animations, 'Run');
   const aimClip = AnimationClip.findByName(animations, 'Aim');
   const riseClip = AnimationClip.findByName(animations, 'Rise');
+  const fireClip = AnimationClip.findByName(animations, 'Fire');
   const runAction = mixer.clipAction(runClip);
   const aimAction = mixer.clipAction(aimClip);
   const riseAction = mixer.clipAction(riseClip);
+  const fireAction = mixer.clipAction(fireClip);
   runAction.timeScale = 0.85;
   runAction.weight = 0;
   aimAction.loop = LoopOnce;
   aimAction.clampWhenFinished = true;
   riseAction.loop = LoopOnce;
   riseAction.clampWhenFinished = true;
+  fireAction.loop = LoopOnce;
+  fireAction.clampWhenFinished = true;
   soldier = {
     scene: soldierScene,
     animations,
@@ -87,6 +92,7 @@ new GLTFLoader().load('./models/soldier.glb', (gltf) => {
     runAction,
     aimAction,
     riseAction,
+    fireAction,
     state: CROUCHED,
   };
   scene.add(soldier.scene);
@@ -136,12 +142,14 @@ const update = (dt) => {
         soldier.riseAction.weight = 1;
         soldier.aimAction.weight = 0;
         soldier.runAction.weight = 0;
+        soldier.fireAction.weight = 0;
         soldier.riseAction.reset().play();
       } else if (soldier.state === GETTING_UP) {
         if (soldier.riseAction.paused) {
           soldier.runAction.weight = 1;
           soldier.riseAction.weight = 0;
           soldier.aimAction.weight = 0;
+          soldier.fireAction.weight = 0;
           soldier.state = RUNNING;
         }
       } else if (soldier.state === RUNNING) {
@@ -162,9 +170,23 @@ const update = (dt) => {
         soldier.aimAction.weight = 1;
         soldier.riseAction.weight = 0;
         soldier.runAction.weight = 0;
+        soldier.fireAction.weight = 0;
         soldier.aimAction.reset().play();
       } else if (soldier.state === CROUCHING_DOWN && soldier.aimAction.paused) {
         soldier.state = CROUCHED;
+      } else if (soldier.state === CROUCHED) {
+        if (keys.SPACE) {
+          soldier.state = FIRING;
+          soldier.fireAction.weight = 1;
+          soldier.runAction.weight = 0;
+          soldier.aimAction.weight = 0;
+          soldier.riseAction.weight = 0;
+          soldier.fireAction.reset().play();
+        }
+      } else if (soldier.state === FIRING) {
+        if (soldier.fireAction.paused) {
+          soldier.state = CROUCHED;
+        }
       }
     }
 
