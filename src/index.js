@@ -7,13 +7,23 @@ import {
   PlaneGeometry,
   SpotLight,
   Vector3,
+  Euler,
   AnimationMixer,
   AnimationClip,
   LoopOnce,
 } from 'three';
 import GLTFLoader from 'three-gltf-loader';
+import GPUParticleSystem from './GPUParticleSystem';
+
+import { Howl } from 'howler';
+// http://soundbible.com/1998-Gun-Fire.html
+import rifleSrc from './audio/rifle.mp3';
 
 const TAU = 2 * Math.PI;
+
+const rifleSound = new Howl({
+  src: rifleSrc,
+});
 
 const scene = new Scene();
 const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
@@ -98,6 +108,11 @@ new GLTFLoader().load('./models/soldier.glb', (gltf) => {
   scene.add(soldier.scene);
 });
 
+const particleSystem = new GPUParticleSystem();
+particleSystem.timeInSeconds = 0;
+scene.add(particleSystem);
+const explosions = [];
+
 const keys = {};
 const Codes = {
   38: 'UP',
@@ -130,6 +145,19 @@ window.addEventListener('keyup', (e) => {
 const MOVE_SPEED = 0.02;
 const TURN_SPEED = 0.005;
 const update = (dt) => {
+  for (const explosion of explosions.slice()) {
+    explosion.emissionDuration -= dt * 1e-3;
+    if (explosion.emissionDuration <= 0) {
+      explosions.splice(explosions.indexOf(explosion), 1);
+      continue;
+    }
+    for (let i = 0; i < explosion.spawnRate * dt * 1e-3; i++) {
+      particleSystem.spawnParticle(explosion);
+    }
+  }
+  particleSystem.timeInSeconds += dt * 1e-3;
+  particleSystem.update(particleSystem.timeInSeconds);
+
   if (soldier !== null) {
     soldier.runAction.play();
     soldier.aimAction.play();
@@ -177,6 +205,32 @@ const update = (dt) => {
       } else if (soldier.state === CROUCHED) {
         if (keys.SPACE) {
           soldier.state = FIRING;
+          const offset = new Vector3(-0.1, 7, 6.3);
+          particleSystem.position.copy(
+            soldier.scene.position.clone().add(offset.applyEuler(
+              new Euler(0, soldier.scene.rotation.y, 0)
+            ))
+          );
+          particleSystem.rotation.set(
+            -0.1,
+            0.25 + soldier.scene.rotation.y,
+            0
+          );
+          explosions.push({
+            position: new Vector3(0, 0, 0),
+          	positionRandomness: .3,
+          	velocity: new Vector3(0, 0, 1.45),
+          	velocityRandomness: .0,
+          	color: 0xaa4400,
+          	colorRandomness: .1,
+          	turbulence: .0,
+          	lifetime: 0.2,
+          	size: 5,
+          	sizeRandomness: 1,
+            spawnRate: 2500,
+            emissionDuration: 0.2,
+          });
+          rifleSound.play();
           soldier.fireAction.weight = 1;
           soldier.runAction.weight = 0;
           soldier.aimAction.weight = 0;
