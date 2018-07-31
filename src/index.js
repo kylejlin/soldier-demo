@@ -145,10 +145,12 @@ window.addEventListener('keyup', (e) => {
 const MOVE_SPEED = 0.02;
 const TURN_SPEED = 0.005;
 const update = (dt) => {
-  for (const explosion of explosions.slice()) {
+  for (let i = 0; i < explosions.length; i++) {
+    const explosion = explosions[i];
     explosion.emissionDuration -= dt * 1e-3;
     if (explosion.emissionDuration <= 0) {
-      explosions.splice(explosions.indexOf(explosion), 1);
+      explosions.splice(i, 1);
+      i--;
       continue;
     }
     for (let i = 0; i < explosion.spawnRate * dt * 1e-3; i++) {
