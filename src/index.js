@@ -220,17 +220,45 @@ const update = (dt) => {
           );
           explosions.push({
             position: new Vector3(0, 0, 0),
-          	positionRandomness: .3,
-          	velocity: new Vector3(0, 0, 1.45),
+          	positionRandomness: .2,
+          	velocity: new Vector3(0, 0, 2.75),
           	velocityRandomness: .0,
           	color: 0xaa4400,
           	colorRandomness: .1,
           	turbulence: .0,
-          	lifetime: 0.2,
+          	lifetime: 0.1,
           	size: 5,
           	sizeRandomness: 1,
+            spawnRate: 5000,
+            emissionDuration: 0.05,
+          });
+          explosions.push({
+            position: new Vector3(0, 0, 0),
+          	positionRandomness: .3,
+          	velocity: new Vector3(0, 0, 0.5),
+          	velocityRandomness: .3,
+          	color: 0x080808,
+          	colorRandomness: .0,
+          	turbulence: .0,
+          	lifetime: 0.7,
+          	size: 5,
+          	sizeRandomness: 3,
+            spawnRate: 5000,
+            emissionDuration: 0.1,
+          });
+          explosions.push({
+            position: new Vector3(0, 0, 0),
+          	positionRandomness: .1,
+          	velocity: new Vector3(0, 0, 1),
+          	velocityRandomness: .3,
+          	color: 0x080808,
+          	colorRandomness: .0,
+          	turbulence: .0,
+          	lifetime: 0.5,
+          	size: 5,
+          	sizeRandomness: 3,
             spawnRate: 2500,
-            emissionDuration: 0.2,
+            emissionDuration: 0.1,
           });
           rifleSound.play();
           soldier.fireAction.weight = 1;
