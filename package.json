@@ -22,7 +22,6 @@
     "webpack-cli": "^2.1.5"
   },
   "dependencies": {
-    "becs": "^0.6.0",
     "howler": "^2.0.14",
     "three": "^0.93.0",
     "three-gltf-loader": "^1.93.0"
